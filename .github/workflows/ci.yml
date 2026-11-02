@@ -106,7 +106,26 @@ jobs:
           NODE_ENV: test
           SKIP_PAID_SERVICES: ${{ steps.paid.outputs.skip_paid }}
       - name: ESLint
-        run: bun run lint
+        shell: bash
+        run: |
+          set +e
+          bun run lint 2>&1 | tee /tmp/eslint-errors.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          if (( status != 0 )); then
+            {
+              echo '## ESLint diagnostics'
+              echo '```text'
+              cat /tmp/eslint-errors.txt
+              echo '```'
+            } >> "${GITHUB_STEP_SUMMARY}"
+            diagnostic="$(cat /tmp/eslint-errors.txt)"
+            diagnostic="${diagnostic//'%'/'%25'}"
+            diagnostic="${diagnostic//$'\r'/'%0D'}"
+            diagnostic="${diagnostic//$'\n'/'%0A'}"
+            echo "::error title=Complete ESLint diagnostics::${diagnostic}"
+            exit "${status}"
+          fi
       - name: Production build verification
         run: bun run build
         env:
