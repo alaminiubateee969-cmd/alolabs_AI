@@ -251,8 +251,12 @@ export function proxy(request: NextRequest) {
     if (!hasSession) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', pathname + search);
-      return NextResponse.redirect(loginUrl);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      redirectResponse.headers.set('Cache-Control', 'private, no-store');
+      return redirectResponse;
     }
+    // Do not let intermediaries or browsers cache authenticated page HTML.
+    response.headers.set('Cache-Control', 'private, no-store');
   }
 
   // ── API auth enforcement (Bearer token presence check) ─────────────────

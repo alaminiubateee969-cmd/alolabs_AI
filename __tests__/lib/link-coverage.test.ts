@@ -15,6 +15,14 @@ const ROOT = process.cwd();
 
 /** Every link in the reference list sent for this round, normalised. */
 const EXPECTED_LINKS = [
+  'github.com/daslearning-org/OpenSMS',
+  'github.com/NdoleStudio/httpsms',
+  'github.com/NdoleStudio/httpsms-node',
+  'github.com/ArnasDon/wacrm',
+  'github.com/melgarafael/DeskcommCRM',
+  'github.com/meta-models/meta-model-cookbook',
+  'developer.meta.com/ai',
+  'openrouter.ai/blog/tutorials/build-tool-calling-agent-loop',
   'buffer.com',
   'coder.qwen.ai',
   'stackoverflow.com',

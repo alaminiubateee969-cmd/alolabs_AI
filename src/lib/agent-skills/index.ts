@@ -90,6 +90,9 @@ const bodyLoaders: Record<string, () => Promise<{ SKILL_BODIES: Record<string, s
   'claude-official': () => import('./content/claude-official.generated.ts'),
   'cli-anything': () => import('./content/cli-anything.generated.ts'),
   'rea': () => import('./content/rea.generated.ts'),
+  'ruflo': () => import('./content/ruflo.generated.ts'),
+  'cursor-create-plugin': () => import('./content/cursor-create-plugin.generated.ts'),
+  'opencode': () => import('./content/opencode.generated.ts'),
   'ai-memory': () => import('./content/ai-memory.generated.ts'),
 };
 

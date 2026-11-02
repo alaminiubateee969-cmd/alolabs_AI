@@ -55,10 +55,12 @@ describe('authoriseTool', () => {
     expect(authoriseTool(lowRisk, { allowedTools: '["*"]', forbiddenTools: '[]' }).allowed).toBe(false);
   });
 
-  it('requires an approval reference for high-risk tools', () => {
+  it('fails closed for privileged tools even when a caller supplies an approval ID', () => {
     const permissions = { allowedTools: '["payment_execute"]', forbiddenTools: '[]' };
     expect(authoriseTool(highRisk, permissions).allowed).toBe(false);
-    expect(authoriseTool(highRisk, permissions, { approvalId: 'appr-1' }).allowed).toBe(true);
+    expect(authoriseTool(highRisk, permissions, { approvalId: 'appr-1' }).allowed).toBe(false);
+    const requiresApproval = { ...highRisk, risk: 'low' as const };
+    expect(authoriseTool(requiresApproval, permissions, { approvalId: 'appr-1' }).allowed).toBe(false);
   });
 });
 
