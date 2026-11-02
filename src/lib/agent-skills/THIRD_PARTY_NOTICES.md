@@ -18,5 +18,8 @@ Quarantined skills are cataloged for review but are never injected into the Comm
 - **HKUDS/CLI-Anything** @ `34f519533bc175d2fe287ab8316b0dd99bb9cc43` — Apache-2.0; 151 skills (0 advisory, 151 quarantined). License: `src/lib/agent-skills/licenses/cli-anything-LICENSE.txt`.
 - **morluto/rea** @ `23de10bb2849cdce8ddbe70504aa7cc57de75a98` — MIT; 5 skills (0 advisory, 5 quarantined). License: `src/lib/agent-skills/licenses/rea-LICENSE.txt`.
 - **akitaonrails/ai-memory** @ `ac699b5696ccb37eaa901893fd16bb2b8ba59d90` — MIT; 7 skills (0 advisory, 7 quarantined). License: `src/lib/agent-skills/licenses/ai-memory-LICENSE.txt`.
+- **anomalyco/opencode** @ `ff90ed91607cabf420a369e9009539c1aa0932af` — MIT; 7 skills (0 advisory, 7 quarantined). License: `src/lib/agent-skills/licenses/opencode-LICENSE.txt`.
+- **ruvnet/ruflo** @ `5f3dacc54b7279e39b172d6027d7989791448e2e` — MIT; 3 skills (0 advisory, 3 quarantined). License: `src/lib/agent-skills/licenses/ruflo-LICENSE.txt`.
+- **cursor/plugins** @ `ae5650febf4320793844c12c4adaa937f417f8da` — MIT; 2 skills (0 advisory, 2 quarantined). License: `src/lib/agent-skills/licenses/cursor-create-plugin-LICENSE.txt`.
 
 Upstream license texts are preserved in `src/lib/agent-skills/licenses/`. Model weights, voice rights, SaaS terms, and executable plugin terms are separate and are not cleared by this import.

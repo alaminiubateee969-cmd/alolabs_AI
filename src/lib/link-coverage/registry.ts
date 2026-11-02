@@ -17,6 +17,63 @@ import type { CoverageEntry } from './types';
 const CHECKED = '2026-10-26';
 
 export const LINK_COVERAGE: CoverageEntry[] = [
+  // Requested 2026-11-02: local evidence is not upstream installation or parity.
+  {
+    id: 'opensms', url: 'https://github.com/daslearning-org/OpenSMS.git', kind: 'repository', category: 'Voice, calls & SMS',
+    upstream: 'Locally hosted SMS API server.', verdict: 'gap',
+    claim: 'The local SMS route stores pending records; it does not run OpenSMS or send these records.',
+    evidence: [{ label: 'SMS route', path: 'src/app/api/sms/route.ts', kind: 'route' }],
+    gap: 'No OpenSMS deployment, adapter, or end-to-end delivery test.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'httpsms', url: 'https://github.com/NdoleStudio/httpsms.git', kind: 'repository', category: 'Voice, calls & SMS',
+    upstream: 'Android phone SMS gateway and server.', verdict: 'gap',
+    claim: 'A tested httpSMS send adapter exists, but it is not wired to the SMS route and no server or Android bridge has been deployed.',
+    evidence: [{ label: 'SMS route', path: 'src/app/api/sms/route.ts', kind: 'route' }, { label: 'httpSMS client', path: 'src/lib/sms/httpsms-client.ts', kind: 'library' }, { label: 'Adapter contract tests', path: '__tests__/lib/httpsms-client.node.test.mjs', kind: 'test' }],
+    gap: 'Secure route integration, configured gateway, Android device, inbound webhooks and live delivery verification are missing.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'httpsms-node', url: 'https://github.com/NdoleStudio/httpsms-node.git', kind: 'repository', category: 'Voice, calls & SMS',
+    upstream: 'Node.js client for the httpSMS API.', verdict: 'gap',
+    claim: 'A first-party adapter implements the documented send request; the upstream Node package is not installed and the SMS route does not call the adapter.',
+    evidence: [{ label: 'SMS route', path: 'src/app/api/sms/route.ts', kind: 'route' }, { label: 'httpSMS client', path: 'src/lib/sms/httpsms-client.ts', kind: 'library' }, { label: 'Contract tests', path: '__tests__/lib/httpsms-client.node.test.mjs', kind: 'test' }],
+    gap: 'No route integration, live provider test, inbound handling or encryption support.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'wacrm', url: 'https://github.com/ArnasDon/wacrm.git', kind: 'repository', category: 'Chat & messaging',
+    upstream: 'Self-hostable WhatsApp CRM template.', verdict: 'gap',
+    claim: 'CRM and WhatsApp routes exist locally; they are not the wacrm application and parity has not been verified.',
+    evidence: [{ label: 'CRM contacts', path: 'src/app/api/crm/contacts/route.ts', kind: 'route' }, { label: 'WhatsApp send', path: 'src/app/api/whatsapp/send/route.ts', kind: 'route' }],
+    gap: 'No wacrm fork or integration, and no feature parity test.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'deskcomm-crm', url: 'https://github.com/melgarafael/DeskcommCRM.git', kind: 'repository', category: 'Chat & messaging',
+    upstream: 'Self-hosted sales CRM with AI agents and WhatsApp.', verdict: 'gap',
+    claim: 'Related CRM and agent routes exist; DeskcommCRM is not installed and parity has not been verified.',
+    evidence: [{ label: 'CRM contacts', path: 'src/app/api/crm/contacts/route.ts', kind: 'route' }, { label: 'Agent runtime', path: 'src/lib/agent-runtime/tool-loop.ts', kind: 'library' }],
+    gap: 'No DeskcommCRM integration or feature parity test.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'meta-model-cookbook', url: 'https://github.com/meta-models/meta-model-cookbook.git', kind: 'repository', category: 'AI & models',
+    upstream: 'Meta Model API recipes and examples.', verdict: 'reference',
+    claim: 'A Llama provider adapter and agent loop exist locally, but cookbook examples are not imported or validated.',
+    evidence: [{ label: 'Llama adapter', path: 'src/lib/ai-router/llama-provider.ts', kind: 'library' }, { label: 'Agent loop', path: 'src/lib/agent-runtime/tool-loop.ts', kind: 'library' }],
+    gap: 'Live model contracts and cookbook feature parity remain unverified.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'meta-developer-ai', url: 'https://developer.meta.com/ai', kind: 'site', category: 'AI & models',
+    upstream: 'Meta developer AI resources.', verdict: 'reference',
+    claim: 'A Llama provider adapter exists locally. This site could not be fetched in the sandbox.',
+    evidence: [{ label: 'Llama adapter', path: 'src/lib/ai-router/llama-provider.ts', kind: 'library' }],
+    gap: 'No live Meta service or site feature parity verification.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
+  {
+    id: 'openrouter-agent-loop-tutorial', url: 'https://openrouter.ai/blog/tutorials/build-tool-calling-agent-loop', kind: 'site', category: 'AI & models',
+    upstream: 'OpenRouter tool-calling agent loop tutorial.', verdict: 'reference',
+    claim: 'Local tool-loop and OpenRouter adapter code exists. The tutorial could not be fetched in the sandbox; parity and live execution are unverified.',
+    evidence: [{ label: 'Agent loop', path: 'src/lib/agent-runtime/tool-loop.ts', kind: 'library' }, { label: 'OpenRouter provider', path: 'src/lib/ai-router/openrouter-provider.ts', kind: 'library' }],
+    gap: 'Compare against the tutorial and test against a configured provider.', upstreamMeta: { checkedAt: '2026-11-02' },
+  },
   // ─── Social, scheduling and publishing ────────────────────────────────────
   {
     id: 'buffer',
@@ -307,7 +364,7 @@ export const LINK_COVERAGE: CoverageEntry[] = [
     upstream: 'Go SMS gateway built on NdoleStudio/httpsms, deployed behind Cloudflare Tunnel (3 stars).',
     verdict: 'in_kind',
     claim:
-      'An SMS surface exists here — send route, message records and a marketing tab — but it sends through an HTTP/SMTP provider, not an Android device bridge.',
+      'An SMS surface exists here, but its SMS route only stores pending messages; it does not dispatch them to an SMS provider or Android device bridge.',
     evidence: [
       { label: 'SMS route', path: 'src/app/api/sms/route.ts', kind: 'route' },
       { label: 'SMS panel', path: 'src/components/panels/sms-panel.tsx', kind: 'panel' },

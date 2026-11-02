@@ -7,7 +7,8 @@
  *   1. the tool must exist in the registry;
  *   2. the agent must list it in `allowedTools`;
  *   3. the agent must not list it in `forbiddenTools` (forbidden wins);
- *   4. high-risk tools additionally require an approval reference.
+ *   4. approval-required tools remain blocked until approval validation is implemented.
+ * A caller-supplied approval ID alone is not proof of a human decision.
  *
  * `*` and prefix wildcards are deliberately NOT supported: a workforce of 2,000
  * agents should not be able to inherit a blanket grant by accident.
@@ -44,7 +45,7 @@ export interface AgentToolPermissions {
 export function authoriseTool(
   tool: Pick<ToolDefinition, 'name' | 'risk' | 'requiresApproval'> | undefined,
   permissions: AgentToolPermissions,
-  options: { approvalId?: string | null } = {},
+  _options: { approvalId?: string | null } = {},
 ): ToolAuthorisation {
   if (!tool) {
     return { allowed: false, reason: 'Tool is not registered' };
@@ -59,8 +60,10 @@ export function authoriseTool(
   if (!allowed.includes(tool.name)) {
     return { allowed: false, reason: `Tool "${tool.name}" is not in this agent's allowed tools` };
   }
-  if ((tool.risk === 'high' || tool.requiresApproval) && !options.approvalId) {
-    return { allowed: false, reason: `Tool "${tool.name}" requires human approval before execution` };
+  // An ID has not been checked for status, tenant, action, arguments, expiry or
+  // replay. Until that binding exists, never allow privileged execution.
+  if (tool.risk === 'high' || tool.requiresApproval) {
+    return { allowed: false, reason: `Tool "${tool.name}" is blocked: verified human approval enforcement is unavailable` };
   }
 
   return { allowed: true, reason: 'Allowed' };

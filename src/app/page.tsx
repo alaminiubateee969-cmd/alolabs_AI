@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { MarketingSite } from '@/components/site/marketing-site'
+import { HomeExperience } from '@/components/site/home-experience'
+import './home.css'
 
 /**
  * The public website. This is what a first-time visitor sees at
@@ -26,5 +27,5 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <MarketingSite />
+  return <HomeExperience />
 }

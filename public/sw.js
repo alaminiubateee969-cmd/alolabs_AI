@@ -1,39 +1,18 @@
-const CACHE_NAME = 'alo-agentos-v1';
-const STATIC_ASSETS = ['/'];
-
+// Keep page navigations network-only: never replay a cached authenticated shell
+// or a stale version of the homepage after logout or deployment.
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    )
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    // Remove only caches created by the old AgentOS worker; leave unrelated
+    // application caches alone. This also removes the legacy cached '/' page.
+    await Promise.all(keys.filter((key) => key.startsWith('alo-agentos-')).map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
-
-  // Skip API calls and WebSocket upgrades
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/')) return;
-
-  event.respondWith(
-    caches.match(event.request).then(
-      (cached) =>
-        cached ||
-        fetch(event.request).catch(() => caches.match('/'))
-    )
-  );
-});
+// No fetch handler: navigation, API and asset requests go directly to the
+// network, where the server validates each private-page session.

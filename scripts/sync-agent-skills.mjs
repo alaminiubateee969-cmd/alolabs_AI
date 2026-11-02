@@ -16,7 +16,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -98,6 +98,27 @@ const SOURCES = [
     license: 'MIT', licensePath: 'LICENSE', defaultStatus: 'quarantined',
     include: /(^|\/)SKILL\.md$/, categoryOf: () => 'security-research',
     quarantineReason: 'Reverse-engineering workflows are dual-use and require written authorization and an isolated lab.',
+  },
+  {
+    id: 'ruflo', repo: 'ruvnet/ruflo', commit: '5f3dacc54b7279e39b172d6027d7989791448e2e',
+    license: 'MIT', licensePath: 'LICENSE', defaultStatus: 'quarantined',
+    include: /^\.agents\/skills\/(agent-adaptive-coordinator|agent-analyze-code-quality|agent-architecture)\/SKILL\.md$/,
+    categoryOf: () => 'multi-agent',
+    quarantineReason: 'Multi-agent coordination instructions require review of external execution and data access before use.',
+  },
+  {
+    id: 'cursor-create-plugin', repo: 'cursor/plugins', commit: 'ae5650febf4320793844c12c4adaa937f417f8da',
+    license: 'MIT', licensePath: 'create-plugin/LICENSE', defaultStatus: 'quarantined',
+    include: /^create-plugin\/skills\/[^/]+\/SKILL\.md$/,
+    categoryOf: () => 'coding',
+    quarantineReason: 'Plugin creation instructions require review and do not install or authorize plugins.',
+  },
+  {
+    id: 'opencode', repo: 'anomalyco/opencode', commit: 'ff90ed91607cabf420a369e9009539c1aa0932af',
+    license: 'MIT', licensePath: 'LICENSE', defaultStatus: 'quarantined',
+    include: /^\.opencode\/skills\/(?!sample-skill\/)[^/]+\/SKILL\.md$/,
+    categoryOf: () => 'coding',
+    quarantineReason: 'Upstream development instructions can invoke external tools and require review before use in AgentOS.',
   },
   {
     id: 'ai-memory', repo: 'akitaonrails/ai-memory', commit: 'ac699b5696ccb37eaa901893fd16bb2b8ba59d90',
@@ -200,11 +221,20 @@ function riskOf(status, body, requestedTools) {
 async function main() {
   mkdirSync(CONTENT, { recursive: true });
   mkdirSync(LICENSES, { recursive: true });
-  const entries = [];
+  // Optionally refresh one pinned source without refetching every other source.
+  // Preserve existing entries and body modules; unknown IDs fail closed.
+  const args = process.argv.slice(2);
+  if (args.length && (args.length !== 2 || args[0] !== '--source')) {
+    throw new Error('Usage: node scripts/sync-agent-skills.mjs [--source ID]');
+  }
+  const sourceId = args[1];
+  if (sourceId && !SOURCES.some((source) => source.id === sourceId)) throw new Error(`Unknown source: ${sourceId}`);
+  const previous = sourceId ? JSON.parse(readFileSync(join(OUT, 'catalog.json'), 'utf8')) : null;
+  const entries = previous ? previous.skills.filter((entry) => entry.source.id !== sourceId) : [];
   const bodiesBySource = new Map();
-  const sourceSummaries = [];
+  const sourceSummaries = previous ? previous.sources.filter((source) => source.id !== sourceId) : [];
 
-  for (const source of SOURCES) {
+  for (const source of SOURCES.filter((item) => !sourceId || item.id === sourceId)) {
     process.stdout.write(`\n→ ${source.repo} @ ${source.commit.slice(0, 8)}\n`);
     const tree = await api(`repos/${source.repo}/git/trees/${source.commit}?recursive=1`);
     if (tree.truncated) throw new Error(`Tree truncated for ${source.repo}; refusing partial import`);

@@ -42,7 +42,7 @@ export interface ExecuteToolOptions {
   toolName: string;
   args: Record<string, unknown>;
   context: ToolContext;
-  /** Parsed permissions of the calling agent. Omit only for trusted internal calls. */
+  /** Parsed permissions of the calling agent. Missing permissions are denied. */
   permissions?: { allowedTools: unknown; forbiddenTools: unknown };
   approvalId?: string | null;
   timeoutMs?: number;
@@ -79,11 +79,9 @@ export async function executeTool(options: ExecuteToolOptions): Promise<ToolExec
     return record({ ok: false, output: '', error: `Unknown tool "${options.toolName}"`, blocked: true, blockReason: 'not-registered' });
   }
 
-  if (options.permissions) {
-    const decision = authoriseTool(tool, options.permissions, { approvalId: options.approvalId });
-    if (!decision.allowed) {
-      return record({ ok: false, output: '', error: decision.reason, blocked: true, blockReason: decision.reason });
-    }
+  const decision = authoriseTool(tool, options.permissions ?? { allowedTools: [], forbiddenTools: [] }, { approvalId: options.approvalId });
+  if (!decision.allowed) {
+    return record({ ok: false, output: '', error: decision.reason, blocked: true, blockReason: decision.reason });
   }
 
   try {
