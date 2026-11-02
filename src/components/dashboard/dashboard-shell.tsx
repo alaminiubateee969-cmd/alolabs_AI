@@ -225,7 +225,7 @@ export default function DashboardShell({ initialUser }: { initialUser?: Dashboar
       url.searchParams.set('view', id)
       window.history.replaceState({}, '', url.toString())
     }
-  }, [])
+  }, [setView, setMobileOpen])
 
   // Hydrate the selected view from the URL once.
   useEffect(() => {
